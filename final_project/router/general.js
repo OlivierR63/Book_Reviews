@@ -6,34 +6,33 @@ const public_users = express.Router();
 
 
 public_users.post("/register", (req,res) => {
-  //Write your code here
-  return res.status(300).json({message: "Yet to be implemented"});
+    const firstName = req.body.firstName;
+    const lastName = req.body.lastName; 
+    
+    return res.status(300).json({message: "Yet to be implemented"});
 });
 
 // Get the book list available in the shop
 public_users.get('/',function (req, res) {
-    //books_string = JSON.stringify(books, "", 4);
-    //return res.status(300).json({message: `available books are ${books_string}`});
+    // Convert the books into an array for better handling
+    const booksArray = Object.values(books);
 
-     // Convert the books into an array for better handling
-     const booksArray = Object.values(books);
-
-     // Create a structured response
-     const response = {
-         totalBooks: booksArray.length,
-         books: booksArray.map(book => ({
-             id: book.id,
-             author: book.author,
-             title: book.title,
-             reviewsCount: Object.keys(book.reviews).length // Nombre d'avis
-         }))
-     };
+    // Create a structured response
+    const response = {
+            totalBooks: booksArray.length,
+            books: booksArray.map(book => ({
+                id: book.id,
+                author: book.author,
+                title: book.title,
+                reviewsCount: Object.keys(book.reviews).length // Nombre d'avis
+            }))
+    };
  
-     // Translate the response into a JSON string with indentation.
-     const responseString = JSON.stringify(response, null, 4);
+    // Translate the response into a JSON string with indentation.
+    const responseString = JSON.stringify(response, null, 4);
  
-     // Return the response with a status of 300.
-     return res.status(200).send(responseString);
+    // Return the response with a status of 300.
+    return res.status(200).send(responseString);
 });
 
 // Get book details based on ISBN
@@ -59,20 +58,68 @@ public_users.get('/isbn/:isbn',function (req, res) {
   
 // Get book details based on author
 public_users.get('/author/:author',function (req, res) {
-  //Write your code here
-  return res.status(300).json({message: "Yet to be implemented"});
+    const authorName = req.params.author;
+    const booksByAuthor = Object.entries(books).filter(([id, book]) =>
+        book.author.toLowerCase() === authorName.toLowerCase()
+    );
+
+    if (booksByAuthor.length > 0) {
+        // If books by the author are found, return the book details.
+        const response = booksByAuthor.map(([id, book]) => ({
+            id: id,
+            author: book.author,
+            title: book.title,
+            reviewsCount: Object.keys(book.reviews).length // Number of reviews.
+        }));
+
+        return res.status(200).json(response);
+    } else {
+        // If no books by the author are found, return a 404 status.
+        return res.status(404).json({ message: "No books found by this author" });
+    }
 });
 
 // Get all books based on title
 public_users.get('/title/:title',function (req, res) {
-  //Write your code here
-  return res.status(300).json({message: "Yet to be implemented"});
+    const title = req.params.title;
+    const booksByTitle = Object.entries(books).filter(([id, book]) =>
+        book.title.toLowerCase() === title.toLowerCase());
+
+    if (booksByTitle.length > 0) {
+        // If books by the author are found, return the book details.
+        const response = booksByTitle.map(([id, book]) => ({
+            id: id,
+            author: book.author,
+            title: book.title,
+            reviewsCount: Object.keys(book.reviews).length // Number of reviews.
+        }));
+
+        return res.status(200).json(response);
+    } else {
+        // If no books by the author are found, return a 404 status.
+        return res.status(404).json({ message: "No books found by this title" });
+    }
 });
 
 //  Get book review
 public_users.get('/review/:isbn',function (req, res) {
-  //Write your code here
-  return res.status(300).json({message: "Yet to be implemented"});
+    const isbn = req.params.isbn;
+    const book = books[isbn];
+    if (book) 
+    {
+        // If the book is found, return the book details.
+        return res.status(200).json({
+            isbn: isbn,
+            author: book.author,
+            title: book.title,
+            reviews: Object.values(book.reviews),
+        });
+    }
+    else
+    {
+        // If the book is not found, return a 404 status.
+        return res.status(404).json({ message: "Book not found" });
+    }
 });
 
 module.exports.general = public_users;
