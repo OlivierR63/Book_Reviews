@@ -25,12 +25,15 @@ app.use("/customer/auth/*",
 
                     // Verify the validity of the JWT token
                     jwt.verify(token, "access_secret_key", (err, user) => {
-                        if (!err) {
+                        if (!err)
+                        {
                             // If the token is valid, attach user information to the request object
                             req.user = user;
                             // Proceed to the next route handler
                             next();
-                        } else {
+                        }
+                        else 
+                        {
                             // If the token is invalid, send an error response
                             return res.status(403).json({ message: "Invalid or expired token" });
                         }
@@ -44,7 +47,7 @@ app.use("/customer/auth/*",
             }
         );
  
-const PORT =5000;
+const PORT = 5000;
 
 app.use("/customer", customer_routes);
 app.use("/", genl_routes);
