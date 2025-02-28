@@ -4,6 +4,19 @@ let isValid = require("./auth_users.js").isValid;
 let users = require("./auth_users.js").users;
 const public_users = express.Router();
 
+const doesExist = (username) =>{
+    // Filter the users array for any user with the same username
+    let usersWithSameName = users.filter((user) => {
+        return user.username === username;
+    });
+
+    // Return true if any user with the same username is found, otherwise false
+    if (usersWithSameName.length > 0) {
+        return true;
+    } else {
+        return false;
+    }
+}
 
 public_users.post("/register", (req,res) => {
     const userName = req.body.username;
@@ -15,7 +28,7 @@ public_users.post("/register", (req,res) => {
             user.username !== userName || user.password !== password;
         });
 
-        if (!filteredUsers)
+        if (!doesExist(userName))
         {
             users.push({"username":userName, "password": password});
             return res.status(200).json({message: "User successfully registered. Now you can login"});
