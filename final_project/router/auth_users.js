@@ -31,6 +31,7 @@ const authenticatedUser = (username,password)=>{
         });
         return rtrn_value;
     }
+}
 
 //only registered users can login
 regd_users.post("/login", (req,res) => {
