@@ -6,37 +6,32 @@ const regd_users = express.Router();
 let users = [];
 
 const isValid = (username)=>{ 
-    rtrn_value = false;
-    filtered_user = users.filter((user)=>{
-        user.username === username;
-    });
+    // Use filter to check if a user with the same username exists
+    filtered_user = users.filter((user)=>user.username === username);
 
-    if (filtered_user) {
-        rtrn_value = true;
-    }
-    return rtrn_value;
+    // Return true if a user with the same username is found, otherwise false
+    return filtered_user.length > 0;
 }
 
 const authenticatedUser = (username,password)=>{ 
-    rtrn_value = false;
-
+    // First check if the user is valid
     if (isValid(username))
     {
-        auth_user = users.filter((user)=>{
-            user.username===username && user.password === password;
-            if (auth_user)
-            {
-                rtrn_value=true;
-            }
-        });
-        return rtrn_value;
+        // Filter users to find a match with username and password
+        const auth_user = users.filter((user)=>user.username===username && user.password === password);
+    
+        //The double negative (!!) technique is commonly used in JavaScript to convert a value to a boolean.
+        // Returns true if an authenticated user is found, otherwise false
+        return !!auth_user;
     }
+    
+    return false;
 }
 
-//only registered users can login
+//Only registered users can login
 regd_users.post("/login", (req,res) => {
-    username = req.params.username;
-    password = req.params.password;
+    username = req.body.username;
+    password = req.body.password;
 
     if (authenticatedUser(username, password)){
         // Generate JWT access token
