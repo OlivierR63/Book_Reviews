@@ -76,6 +76,7 @@ public_users.get('/isbn/:isbn',function (req, res) {
             isbn: isbn,
             author: book.author,
             title: book.title,
+            reviews: book.reviews,
             reviewsCount: Object.keys(book.reviews).length // Number of reviews.
         });
     }

@@ -19,9 +19,9 @@ app.use("/customer/auth/*",
             function auth(req,res,next)
             {
                 // Check if the user has a session with an authorization token
-                if (req.session.authorization && req.session.authorization.accessToken)
+                if (req.session.authorization)
                 {
-                    const token = req.session.authorization.accessToken;
+                    let token = req.session.authorization.accessToken;
 
                     // Verify the validity of the JWT token
                     jwt.verify(token, "access_secret_key", (err, user) => {

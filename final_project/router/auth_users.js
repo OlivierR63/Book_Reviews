@@ -28,14 +28,15 @@ const authenticatedUser = (username,password)=>{
     return false;
 }
 
-//Only registered users can login
+// Only registered users can login
 regd_users.post("/login", (req,res) => {
     username = req.body.username;
     password = req.body.password;
 
-    if (authenticatedUser(username, password)){
+    if (authenticatedUser(username, password))
+    {
         // Generate JWT access token
-        let accessToken = jwt.sign({
+        const accessToken = jwt.sign({
             data: password
         }, 'access', { expiresIn: 60*60 }); // Validity expires one hour (60*60s = 3600s) after token generation.
 
@@ -53,8 +54,26 @@ regd_users.post("/login", (req,res) => {
 
 // Add a book review
 regd_users.put("/auth/review/:isbn", (req, res) => {
-  //Write your code here
-  return res.status(300).json({message: "Yet to be implemented"});
+    const isbn = req.params.isbn;
+    const review = req.body.review; // Make sure the request body contains a 'review' field
+    const username=req.user.username; // Use the attached user object when authenticating
+    const book=books[isbn];
+
+    if (book)
+    {
+        if (review && review.length > 0) {
+            book.reviews[username] = review; // Add the review to the book's reviews object
+            return res.status(200).json({ message: "Review posted successfully" });
+        } 
+        else 
+        {
+            return res.status(400).json({ message: "Review cannot be empty" });
+        }
+    } 
+    else 
+    {
+        return res.status(404).json({ message: "Book not found" });
+    }
 });
 
 module.exports.authenticated = regd_users;
