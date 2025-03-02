@@ -65,7 +65,7 @@ regd_users.put("/auth/review/:isbn", (req, res) => {
         if (review && review.trim().length > 0) {
             book.reviews = book.reviews || {};   // Make sure the reviews is not filled only with blank spaces.
             book.reviews[username] = review; // Add the review to the book's reviews object
-            return res.status(200).json({ message: "Review posted successfully" });
+            return res.status(200).json({message: `The key/value pair "${username}:${review}"has been added to this book's commentsThe review "${review}" has been posted successfully`});
         } 
         else 
         {

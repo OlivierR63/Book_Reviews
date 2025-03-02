@@ -81,16 +81,15 @@ public_users.get('/isbn/:isbn',function (req, res) {
 // Get book details based on author
 public_users.get('/author/:author',function (req, res) {
     const authorName = req.params.author;
-    const booksByAuthor = Object.entries(books).find(([id, book]) =>
-        book.author.toLowerCase() === authorName.toLowerCase()
-    );
+    const booksByAuthorArray = Object.values(books).filter((book) => book.author.toLowerCase() === authorName.toLowerCase());
 
-    if (booksByAuthor.length > 0) {
+    if (booksByAuthorArray.length > 0) {
         // If books by the author are found, return the book details.
-        const response = booksByAuthor.map(([id, book]) => ({
-            id: id,
+        const response = booksByAuthorArray.map((book, index) => ({
+            id: index,
             author: book.author,
             title: book.title,
+            reviews: booksByAuthorArray.reviews,
             reviewsCount: Object.keys(book.reviews).length // Number of reviews.
         }));
 
@@ -104,20 +103,21 @@ public_users.get('/author/:author',function (req, res) {
 // Get all books based on title
 public_users.get('/title/:title',function (req, res) {
     const title = req.params.title;
-    const booksByTitle = Object.entries(books).find(([id, book]) =>
-        book.title.toLowerCase() === title.toLowerCase());
+    const booksByTitleArray = Object.values(books).filter((book) => book.title.toLowerCase() === title.toLowerCase());
 
-    if (booksByTitle.length > 0) {
-        // If books by the author are found, return the book details.
-        const response = booksByTitle.map(([id, book]) => ({
-            id: id,
+    if (booksByTitleArray.length > 0)
+    {
+        // If book(s) is(are) found by its(their) title(s), return the book(s) details.
+        const response = booksByTitleArray.map((book, index) => ({
             author: book.author,
             title: book.title,
             reviewsCount: Object.keys(book.reviews).length // Number of reviews.
         }));
 
         return res.status(200).json(response);
-    } else {
+    }
+    else
+    {
         // If no books by the author are found, return a 404 status.
         return res.status(404).json({ message: "No books found by this title" });
     }
@@ -131,10 +131,7 @@ public_users.get('/review/:isbn',function (req, res) {
     {
         // If the book is found, return the book details.
         return res.status(200).json({
-            isbn: isbn,
-            author: book.author,
-            title: book.title,
-            reviews: Object.values(book.reviews),
+            reviews: Object.values(book.reviews)
         });
     }
     else
