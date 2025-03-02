@@ -6,19 +6,19 @@ const regd_users = express.Router();
 let users = [];
 
 const isValid = (username)=>{ 
-    // Use filter to check if a user with the same username exists
-    filtered_user = users.filter((user)=>user.username === username);
+    // Use find to check if a user with the same username exists
+    found_user = users.find((user)=>user.username === username);
 
     // Return true if a user with the same username is found, otherwise false
-    return filtered_user.length > 0;
+    return found_user.length > 0;
 }
 
 const authenticatedUser = (username,password)=>{ 
     // First check if the user is valid
     if (isValid(username))
     {
-        // Filter users to find a match with username and password
-        const auth_user = users.filter((user)=>user.username===username && user.password === password);
+        // Use find to check if a user with the same username and password exists
+        const auth_user = users.find((user)=>user.username===username && user.password === password);
     
         //The double negative (!!) technique is commonly used in JavaScript to convert a value to a boolean.
         // Returns true if an authenticated user is found, otherwise false
@@ -30,15 +30,16 @@ const authenticatedUser = (username,password)=>{
 
 // Only registered users can login
 regd_users.post("/login", (req,res) => {
-    username = req.body.username;
-    password = req.body.password;
+    let username = req.body.username;
+    let password = req.body.password;
 
     if (authenticatedUser(username, password))
     {
         // Generate JWT access token
-        const accessToken = jwt.sign({
-            data: password
-        }, 'access', { expiresIn: 60*60 }); // Validity expires one hour (60*60s = 3600s) after token generation.
+        const accessToken = jwt.sign(
+            {"username": username},
+            'access',
+            { expiresIn: 60*60 }); // Validity expires one hour (60*60s = 3600s) after token generation.
 
         // Store access token and username in session
         req.session.authorization = {
@@ -74,6 +75,11 @@ regd_users.put("/auth/review/:isbn", (req, res) => {
     {
         return res.status(404).json({ message: "Book not found" });
     }
+});
+
+// Delete a book
+regd_users.delete("/auth/review/:isbn", (req, res)=>{
+    
 });
 
 module.exports.authenticated = regd_users;

@@ -6,7 +6,7 @@ const public_users = express.Router();
 
 const doesExist = (username) =>{
     // Filter the users array for any user with the same username
-    let usersWithSameName = users.filter((user) => {
+    let usersWithSameName = users.find((user) => {
         return user.username === username;
     });
 
@@ -24,10 +24,6 @@ public_users.post("/register", (req,res) => {
 
     if(userName && password)
     {
-        filteredUsers = users.filter(user=>{
-            user.username !== userName || user.password !== password;
-        });
-
         if (!doesExist(userName))
         {
             users.push({"username":userName, "password": password});
@@ -54,6 +50,7 @@ public_users.get('/',function (req, res) {
                 id: book.id,
                 author: book.author,
                 title: book.title,
+                review: book.reviews,
                 reviewsCount: Object.keys(book.reviews).length // Nombre d'avis
             }))
     };
@@ -90,7 +87,7 @@ public_users.get('/isbn/:isbn',function (req, res) {
 // Get book details based on author
 public_users.get('/author/:author',function (req, res) {
     const authorName = req.params.author;
-    const booksByAuthor = Object.entries(books).filter(([id, book]) =>
+    const booksByAuthor = Object.entries(books).find(([id, book]) =>
         book.author.toLowerCase() === authorName.toLowerCase()
     );
 
@@ -113,7 +110,7 @@ public_users.get('/author/:author',function (req, res) {
 // Get all books based on title
 public_users.get('/title/:title',function (req, res) {
     const title = req.params.title;
-    const booksByTitle = Object.entries(books).filter(([id, book]) =>
+    const booksByTitle = Object.entries(books).find(([id, book]) =>
         book.title.toLowerCase() === title.toLowerCase());
 
     if (booksByTitle.length > 0) {

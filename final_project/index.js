@@ -24,11 +24,14 @@ app.use("/customer/auth/*",
                     let token = req.session.authorization.accessToken;
 
                     // Verify the validity of the JWT token
-                    jwt.verify(token, "access_secret_key", (err, user) => {
+                    jwt.verify(token, "access", (err, decoded) => {
                         if (!err)
                         {
                             // If the token is valid, attach user information to the request object
-                            req.user = user;
+                            // The term "decoded" corresponds to the decoded payload of the JSON Web Token (JWT) after its verification
+                            // Reminder : The payload is the part of the token that contains the information included when it was created, such as the username, roles, etc.
+                            req.user = {username: decoded.username};
+                            
                             // Proceed to the next route handler
                             next();
                         }
