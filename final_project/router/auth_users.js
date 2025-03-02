@@ -10,7 +10,7 @@ const isValid = (username)=>{
     found_user = users.find((user)=>user.username === username);
 
     // Return true if a user with the same username is found, otherwise false
-    return found_user.length > 0;
+    return found_user !== undefined;
 }
 
 const authenticatedUser = (username,password)=>{ 
@@ -62,7 +62,8 @@ regd_users.put("/auth/review/:isbn", (req, res) => {
 
     if (book)
     {
-        if (review && review.length > 0) {
+        if (review && review.trim().length > 0) {
+            book.reviews = book.reviews || {};   // Make sure the reviews is not filled only with blank spaces.
             book.reviews[username] = review; // Add the review to the book's reviews object
             return res.status(200).json({ message: "Review posted successfully" });
         } 
@@ -79,8 +80,29 @@ regd_users.put("/auth/review/:isbn", (req, res) => {
 
 // Delete a book
 regd_users.delete("/auth/review/:isbn", (req, res)=>{
-    
+    let isbn = req.params.isbn;
+    let book = books[isbn];
+
+    if (book)
+    {
+        const userName = req.user.username;
+
+        if (book.reviews && book.reviews[userName])
+        {
+            delete book.reviews[userName]; // Delete the specified user's review
+            return res.status(200).json({ message: `Reviews from user ${userName} related to book ${isbn} deleted successfully` });
+        }
+        else
+        {
+            return res.status(400).json({ message: "No review found for this user" });
+        }
+    }
+    else
+    {
+        return res.status(404).json({ message: "Book not found" });
+    }
 });
+
 
 module.exports.authenticated = regd_users;
 module.exports.isValid = isValid;

@@ -5,17 +5,11 @@ let users = require("./auth_users.js").users;
 const public_users = express.Router();
 
 const doesExist = (username) =>{
-    // Filter the users array for any user with the same username
-    let usersWithSameName = users.find((user) => {
-        return user.username === username;
-    });
+    // Use find to check if a user with the same username exists
+    const userWithSameName = users.find((user) => user.username === username);
 
-    // Return true if any user with the same username is found, otherwise false
-    if (usersWithSameName.length > 0) {
-        return true;
-    } else {
-        return false;
-    }
+    // Returns true if a user with the same username is found, otherwise false
+    return userWithSameName !== undefined;
 }
 
 public_users.post("/register", (req,res) => {
