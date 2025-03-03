@@ -34,26 +34,36 @@ public_users.post("/register", (req,res) => {
 
 // Get the book list available in the shop
 public_users.get('/',function (req, res) {
-    // Convert the books into an array for better handling
-    const booksArray = Object.values(books);
+    // GET function shall work in asynchronous mode
+    const get_books = new Promise((resolve, reject) => {
+        // Convert the books into an array for better handling
+        let booksArray = Object.values(books);
 
-    // Create a structured response
-    const response = {
+        // Create a structured response
+        let response = {
             totalBooks: booksArray.length,
             books: booksArray.map(book => ({
-                id: book.id,
                 author: book.author,
                 title: book.title,
                 review: book.reviews,
                 reviewsCount: Object.keys(book.reviews).length // Nombre d'avis
             }))
-    };
- 
-    // Translate the response into a JSON string with indentation.
-    const responseString = JSON.stringify(response, null, 4);
- 
-    // Return the response with a status of 300.
-    return res.status(200).send(responseString);
+        };
+    
+        // Translate the response into a JSON string with indentation.
+        const responseString = JSON.stringify(response, null, 4);
+        return responseString;
+    });
+
+    get_books.then(() =>{
+        // Return the response with a status of 300.
+        return res.status(200).send(responseString);
+    })
+    .catch(()=>{
+        // Return response with a status of 500 (server side error):
+        let errorString = "Unable to get books";
+        return res.status(500).send(errorString);
+    });
 });
 
 // Get book details based on ISBN
