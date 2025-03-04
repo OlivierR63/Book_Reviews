@@ -95,57 +95,84 @@ public_users.get('/author/:author',function (req, res) {
         try
         {
             let authorName = req.params.author;
-            let booksByAuthorArray = Object.values(books).filter((book) => book.author.toLowerCase() === authorName.toLowerCase());
+            let booksByAuthor = Object.entries(books)
+                                        .filter(([key,value]) => value.author.toLowerCase() === authorName.toLowerCase());
 
-            // If books by the author are found, return the book details.
-            let response = booksByAuthorArray.map((book, index) => ({
-                id: book.index,
-                author: book.author,
-                title: book.title,
-                reviews: booksByAuthorArray.reviews,
-                reviewsCount: Object.keys(book.reviews).length // Number of reviews.
-            }));
+            if (booksByAuthor.length > 0) {
+                // If books by the author are found, return the book details.
+                let response = booksByAuthor.map(([index,book]) => ({
+                    id: index,
+                    author: book.author,
+                    title: book.title,
+                    reviews: book.reviews,
+                    reviewsCount: Object.keys(book.reviews).length // Number of reviews.
+                }));
 
-            resolve(res.status(200).json(response));
+                resolve(res.status(200).json(response));
+            } 
+            else 
+            {
+                // If no books by the author are found, reject the promise.
+                reject(new Error(`No books from ${authorName} found.`));
+            }
         }
         catch(error)
         {
             // If no books by the author are found, return a 404 status.
             reject(error);
-            res.status(404).send({ message: "No books found by this author" });
         }
     });
 
     get_book_by_author.then(()=>{
-        console.log(`get_book_based_on_its_author: Promise resolved`);
+        console.log(`get_book_by_author: Promise resolved`);
     })
     .catch((error)=>{
         console.error(`Error getting books:  ${error}`);
-        res.status(500).send("Unable to get book based on its author");
+        res.status(500).send(`Unable to get book from this author : ${req.params.author}`);
     });
 });
 
 // Get all books based on title
 public_users.get('/title/:title',function (req, res) {
-    const title = req.params.title;
-    const booksByTitleArray = Object.values(books).filter((book) => book.title.toLowerCase() === title.toLowerCase());
+    let get_book_by_title = new Promise((resolve, reject)=>{
+        try
+        {
+            let title = req.params.title;
+            let booksByTitle = Object.entries(books)
+                                    .filter(([key,value]) => value.title.toLowerCase() === title.toLowerCase());
 
-    if (booksByTitleArray.length > 0)
-    {
-        // If book(s) is(are) found by its(their) title(s), return the book(s) details.
-        const response = booksByTitleArray.map((book, index) => ({
-            author: book.author,
-            title: book.title,
-            reviewsCount: Object.keys(book.reviews).length // Number of reviews.
-        }));
+            if (booksByTitle.length > 0)
+            {
+                // If book(s) is(are) found by its(their) title(s), return the book(s) details.
+                let response = booksByTitle.map(([index, book]) => ({
+                    id: index,
+                    author: book.author,
+                    title: book.title,
+                    reviewsCount: Object.keys(book.reviews).length // Number of reviews.
+                }));
 
-        return res.status(200).json(response);
-    }
-    else
-    {
-        // If no books by the author are found, return a 404 status.
-        return res.status(404).json({ message: "No books found by this title" });
-    }
+                resolve(res.status(200).json(response));
+            }
+            else
+            {
+                // If no books are found, return a 404 status.
+                reject(new Error(`No books whose title is ${title} has been found`));
+            }
+        }
+        catch(error)
+        {
+            // If no books are found, return a 404 status.
+            reject(error);
+        }
+    });
+
+    get_book_by_title.then(()=>{
+                        console.log(`get_book_based_by_title: Promise resolved`);
+                    })
+                    .catch((error)=>{
+                        console.error(`Error getting books:  ${error}`);
+                        res.status(500).send(`Unable to get book having this title : ${req.params.title}`);
+                    });
 });
 
 //  Get book review
