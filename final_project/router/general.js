@@ -1,6 +1,5 @@
 const express = require('express');
 let books = require("./booksdb.js");
-let isValid = require("./auth_users.js").isValid;
 let users = require("./auth_users.js").users;
 const public_users = express.Router();
 
@@ -32,37 +31,28 @@ public_users.post("/register", (req,res) => {
     return res.status(404).json({message: "Unable to register user."});
 });
 
-// Get the book list available in the shop
-public_users.get('/',function (req, res) {
-    // GET function shall work in asynchronous mode
+// Get the list of available books in the shop.
+public_users.get('/',(req, res)=> {
     const get_books = new Promise((resolve, reject) => {
-        // Convert the books into an array for better handling
-        let booksArray = Object.values(books);
-
-        // Create a structured response
-        let response = {
-            totalBooks: booksArray.length,
-            books: booksArray.map(book => ({
-                author: book.author,
-                title: book.title,
-                review: book.reviews,
-                reviewsCount: Object.keys(book.reviews).length // Nombre d'avis
-            }))
-        };
-    
-        // Translate the response into a JSON string with indentation.
-        const responseString = JSON.stringify(response, null, 4);
-        return responseString;
+        try
+        {
+            // Translate the response into a JSON string with indentation.
+            let booksJSON = JSON.stringify(books, null, 4);
+            resolve(res.status(200).send(booksJSON));
+        }
+        catch(error)
+        {
+            reject(error);
+        }
     });
 
     get_books.then(() =>{
-        // Return the response with a status of 300.
-        return res.status(200).send(responseString);
+        console.log(`get_books: Promise resolved`);
     })
-    .catch(()=>{
+    .catch((error)=>{
         // Return response with a status of 500 (server side error):
-        let errorString = "Unable to get books";
-        return res.status(500).send(errorString);
+        console.error('Error getting books:', error);
+        res.status(500).send("Unable to get list of available books in the shop");
     });
 });
 
